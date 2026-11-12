@@ -1,15 +1,15 @@
 export default {
 	commandName: "Renombrar archivos a slug-case (vault completo)",
-	ribbonTooltip: "Slugify: renombrar archivos a slug-case (vault completo)",
+	ribbonTooltip: "Slugify CJK: renombrar archivos a slug-case (vault completo)",
 	scopeVault: "todo el vault",
-	menuFolder: "Slugify: renombrar archivos de esta carpeta",
-	menuFile: "Slugify: renombrar este archivo",
-	menuSelection: (n: number) => `Slugify: renombrar selección (${n} elementos)`,
+	menuFolder: "Slugify CJK: renombrar archivos de esta carpeta",
+	menuFile: "Slugify CJK: renombrar este archivo",
+	menuSelection: (n: number) => `Slugify CJK: renombrar selección (${n} elementos)`,
 	scopeFolder: (name: string) => `la carpeta "${name}"`,
 	scopeFile: (name: string) => `"${name}"`,
 	scopeSelection: (n: number) => `la selección (${n} elementos)`,
 	noticeNothingToRename: (scope: string) => `Nada que renombrar en ${scope}: ya están en slug-case.`,
-	modalHeading: (n: number, scope: string) => `Slugify: ${n} archivo(s) en ${scope}`,
+	modalHeading: (n: number, scope: string) => `Slugify CJK: ${n} archivo(s) en ${scope}`,
 	modalDescription:
 		"Se renombrarán los siguientes archivos y se actualizarán automáticamente los enlaces que los referencian:",
 	modalEditHint: "Puedes editar cualquier nombre propuesto abajo antes de confirmar.",
@@ -35,4 +35,15 @@ export default {
 	noticeUndoDone: (n: number) => `${n} archivo(s) restaurado(s) a su nombre anterior.`,
 	noticeUndoDoneWithSkipped: (done: number, skipped: number) =>
 		`${done} archivo(s) restaurado(s), ${skipped} omitido(s) (ver consola).`,
+	noticeRestoringMtimes: "Slugify CJK: restaurando fechas de modificación…",
+	noticeMtimesRestored: (n: number, failed: number) =>
+		failed > 0
+			? `Fechas de modificación restauradas en ${n} archivo(s), ${failed} fallaron (ver consola).`
+			: `Fechas de modificación restauradas en ${n} archivo(s).`,
+	settingsPreserveMtimeName: "Conservar fechas de modificación",
+	settingsPreserveMtimeDesc:
+		"Los archivos renombrados conservan su fecha de modificación. Las notas cuyos enlaces se reescriben recuperan su fecha anterior. Solo escritorio.",
+	settingsBumpMtimeName: "Adelantar 3 segundos las notas reescritas",
+	settingsBumpMtimeDesc:
+		"Las notas con enlaces reescritos reciben su fecha anterior más 3 segundos, para que las herramientas de sincronización que comparan fecha y tamaño detecten el cambio. Desactívalo para restaurar la fecha exacta.",
 };

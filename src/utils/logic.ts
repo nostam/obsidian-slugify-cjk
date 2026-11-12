@@ -30,10 +30,14 @@ export function escapeRegExp(value: string): string {
 export function slugify(name: string, separator: string): string {
 	const sep = escapeRegExp(separator);
 	return name
-		.normalize("NFD")
-		.replace(/[̀-ͯ]/g, "") // strip accents
 		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, separator)
+		.normalize("NFD")
+		// Strip accents from Latin letters only. Cyrillic й and kana like が/パ
+		// keep their marks, and NFC puts them back together.
+		.replace(/(\p{Script=Latin})[̀-ͯ]+/gu, "$1")
+		.normalize("NFC")
+		// Keep letters, marks and digits in any script (CJK, kana, Hangul, …).
+		.replace(/[^\p{L}\p{M}\p{N}]+/gu, separator)
 		.replace(new RegExp(`^${sep}+|${sep}+$`, "g"), "")
 		.replace(new RegExp(`${sep}{2,}`, "g"), separator);
 }

@@ -3,6 +3,7 @@ import { computeRenames, isExcluded, isRenamableFile } from "../utils/logic";
 import { t } from "../utils/i18n";
 import { collectFiles } from "./files";
 import { SlugifyModal } from "./modal";
+import { restoreMtimes, snapshotMtimes } from "./mtime";
 import { SlugifySettingTab } from "./settings-tab";
 import { DEFAULT_SETTINGS, type RenameEntry, type SlugifySettings, type UndoEntry } from "./types";
 
@@ -28,7 +29,7 @@ export default class SlugifyPlugin extends Plugin {
 			},
 		});
 
-		this.addRibbonIcon("worm", t.ribbonTooltip, () => this.runVaultSlugify());
+		this.addRibbonIcon("languages", t.ribbonTooltip, () => this.runVaultSlugify());
 
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file) => {
@@ -39,7 +40,7 @@ export default class SlugifyPlugin extends Plugin {
 				menu.addItem((item) => {
 					item
 						.setTitle(isFolder ? t.menuFolder : t.menuFile)
-						.setIcon("worm")
+						.setIcon("languages")
 						.onClick(() => {
 							const files = collectFiles([file], this.settings.excludedFolders, this.settings.includeAttachments);
 							this.runSlugify(files, isFolder ? t.scopeFolder(file.name) : t.scopeFile(file.name));
@@ -58,7 +59,7 @@ export default class SlugifyPlugin extends Plugin {
 				menu.addItem((item) => {
 					item
 						.setTitle(t.menuSelection(relevant.length))
-						.setIcon("worm")
+						.setIcon("languages")
 						.onClick(() => {
 							const targetFiles = collectFiles(relevant, this.settings.excludedFolders, this.settings.includeAttachments);
 							this.runSlugify(targetFiles, t.scopeSelection(relevant.length));
@@ -108,12 +109,15 @@ export default class SlugifyPlugin extends Plugin {
 	private async applyRenames(renames: RenameEntry[]) {
 		let skipped = 0;
 		const succeeded: UndoEntry[] = [];
+		const snap = this.settings.preserveMtime
+			? await snapshotMtimes(this.app, renames.map((r) => r.oldPath))
+			: null;
 
 		for (const entry of renames) {
 			if (entry.collision) {
 				skipped++;
 				console.warn(
-					`Slugify: skipped "${entry.oldPath}" -> "${entry.newPath}" (name collision, flagged in preview).`
+					`Slugify CJK: skipped "${entry.oldPath}" -> "${entry.newPath}" (name collision, flagged in preview).`
 				);
 				continue;
 			}
@@ -125,7 +129,7 @@ export default class SlugifyPlugin extends Plugin {
 				succeeded.push({ oldPath: entry.oldPath, newPath: entry.newPath });
 			} catch (err) {
 				skipped++;
-				console.error(`Slugify: error renaming "${entry.oldPath}"`, err);
+				console.error(`Slugify CJK: error renaming "${entry.oldPath}"`, err);
 			}
 		}
 
@@ -138,6 +142,19 @@ export default class SlugifyPlugin extends Plugin {
 				? t.noticeDoneWithSkipped(succeeded.length, skipped)
 				: t.noticeDone(succeeded.length)
 		);
+
+		await this.finishMtimes(snap, new Map(succeeded.map((e) => [e.oldPath, e.newPath])));
+	}
+
+	private async finishMtimes(snap: Awaited<ReturnType<typeof snapshotMtimes>>, moves: Map<string, string>) {
+		if (!snap) return;
+		const working = new Notice(t.noticeRestoringMtimes, 0);
+		try {
+			const { restored, failed } = await restoreMtimes(snap, moves, this.settings.bumpRewrittenMtime);
+			new Notice(t.noticeMtimesRestored(restored, failed));
+		} finally {
+			working.hide();
+		}
 	}
 
 	private async undoLastBatch() {
@@ -151,28 +168,33 @@ export default class SlugifyPlugin extends Plugin {
 
 		let done = 0;
 		let skipped = 0;
+		const moves = new Map<string, string>();
+		const snap = this.settings.preserveMtime
+			? await snapshotMtimes(this.app, batch.map((e) => e.newPath))
+			: null;
 
 		for (const { oldPath, newPath } of [...batch].reverse()) {
 			const file = this.app.vault.getAbstractFileByPath(newPath);
 			if (!(file instanceof TFile)) {
 				skipped++;
-				console.warn(`Slugify: cannot undo "${newPath}" -> "${oldPath}" (file not found).`);
+				console.warn(`Slugify CJK: cannot undo "${newPath}" -> "${oldPath}" (file not found).`);
 				continue;
 			}
 
 			const collision = this.app.vault.getAbstractFileByPath(oldPath);
 			if (collision && collision !== file) {
 				skipped++;
-				console.warn(`Slugify: cannot undo "${newPath}" -> "${oldPath}" (a file already exists there).`);
+				console.warn(`Slugify CJK: cannot undo "${newPath}" -> "${oldPath}" (a file already exists there).`);
 				continue;
 			}
 
 			try {
 				await this.app.fileManager.renameFile(file, oldPath);
+				moves.set(newPath, oldPath);
 				done++;
 			} catch (err) {
 				skipped++;
-				console.error(`Slugify: error undoing "${newPath}" -> "${oldPath}"`, err);
+				console.error(`Slugify CJK: error undoing "${newPath}" -> "${oldPath}"`, err);
 			}
 		}
 
@@ -181,5 +203,7 @@ export default class SlugifyPlugin extends Plugin {
 				? t.noticeUndoDoneWithSkipped(done, skipped)
 				: t.noticeUndoDone(done)
 		);
+
+		await this.finishMtimes(snap, moves);
 	}
 }

@@ -1,15 +1,15 @@
 export default {
 	commandName: "Rename files to slug-case (whole vault)",
-	ribbonTooltip: "Slugify: rename files to slug-case (whole vault)",
+	ribbonTooltip: "Slugify CJK: rename files to slug-case (whole vault)",
 	scopeVault: "the whole vault",
-	menuFolder: "Slugify: rename files in this folder",
-	menuFile: "Slugify: rename this file",
-	menuSelection: (n: number) => `Slugify: rename selection (${n} items)`,
+	menuFolder: "Slugify CJK: rename files in this folder",
+	menuFile: "Slugify CJK: rename this file",
+	menuSelection: (n: number) => `Slugify CJK: rename selection (${n} items)`,
 	scopeFolder: (name: string) => `folder "${name}"`,
 	scopeFile: (name: string) => `"${name}"`,
 	scopeSelection: (n: number) => `the selection (${n} items)`,
 	noticeNothingToRename: (scope: string) => `Nothing to rename in ${scope}: already in slug-case.`,
-	modalHeading: (n: number, scope: string) => `Slugify: ${n} file(s) in ${scope}`,
+	modalHeading: (n: number, scope: string) => `Slugify CJK: ${n} file(s) in ${scope}`,
 	modalDescription:
 		"The following files will be renamed, and any links pointing to them will be updated automatically:",
 	modalEditHint: "You can edit any proposed name below before confirming.",
@@ -35,4 +35,15 @@ export default {
 	noticeUndoDone: (n: number) => `${n} file(s) restored to their previous name.`,
 	noticeUndoDoneWithSkipped: (done: number, skipped: number) =>
 		`${done} file(s) restored, ${skipped} skipped (see console).`,
+	noticeRestoringMtimes: "Slugify CJK: restoring modified dates…",
+	noticeMtimesRestored: (n: number, failed: number) =>
+		failed > 0
+			? `Modified dates restored on ${n} file(s), ${failed} failed (see console).`
+			: `Modified dates restored on ${n} file(s).`,
+	settingsPreserveMtimeName: "Keep modified dates",
+	settingsPreserveMtimeDesc:
+		"Renamed files keep their modified date. Notes whose links get rewritten have their old modified date put back afterwards. Desktop only.",
+	settingsBumpMtimeName: "Nudge rewritten notes by 3 seconds",
+	settingsBumpMtimeDesc:
+		"Notes whose links were rewritten get their old modified date plus 3 seconds, so sync tools that compare date and size still see the edit. Turn off to restore the exact old date.",
 };

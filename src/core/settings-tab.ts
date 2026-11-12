@@ -55,5 +55,25 @@ export class SlugifySettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				})
 			);
+
+		new Setting(containerEl)
+			.setName(t.settingsPreserveMtimeName)
+			.setDesc(t.settingsPreserveMtimeDesc)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.preserveMtime).onChange(async (value) => {
+					this.plugin.settings.preserveMtime = value;
+					await this.plugin.saveSettings();
+				})
+			);
+
+		new Setting(containerEl)
+			.setName(t.settingsBumpMtimeName)
+			.setDesc(t.settingsBumpMtimeDesc)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.bumpRewrittenMtime).onChange(async (value) => {
+					this.plugin.settings.bumpRewrittenMtime = value;
+					await this.plugin.saveSettings();
+				})
+			);
 	}
 }

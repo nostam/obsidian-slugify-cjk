@@ -55,6 +55,39 @@ test("slugify: non-alphanumeric-only name becomes empty", () => {
 	expect(slugify("¿¡!!!?", "-")).toBe("");
 });
 
+test("slugify: keeps Chinese characters", () => {
+	expect(slugify("關於低解析度視訊超分中出現的色偏", "-")).toBe("關於低解析度視訊超分中出現的色偏");
+	expect(slugify("日本 2024 旅行", "-")).toBe("日本-2024-旅行");
+});
+
+test("slugify: keeps Japanese voiced kana and marks intact", () => {
+	expect(slugify("がぎぐ パピプ", "-")).toBe("がぎぐ-パピプ");
+	expect(slugify("ラーメン 人々", "-")).toBe("ラーメン-人々");
+	// decomposed input is recomposed, not stripped
+	expect(slugify("が", "-")).toBe("が");
+});
+
+test("slugify: keeps Hangul syllables", () => {
+	expect(slugify("한국어 메모", "-")).toBe("한국어-메모");
+});
+
+test("slugify: only strips accents from Latin letters", () => {
+	expect(slugify("Café Ünïcode", "-")).toBe("cafe-unicode");
+	expect(slugify("Йошкар", "-")).toBe("йошкар");
+});
+
+test("slugify: mixed Latin and CJK", () => {
+	expect(slugify("Linux 遷移 Notes_v2", "-")).toBe("linux-遷移-notes-v2");
+});
+
+test("slugify: underscores and dots become the separator", () => {
+	expect(slugify("foo_bar.baz", "-")).toBe("foo-bar-baz");
+});
+
+test("slugify: emoji are dropped", () => {
+	expect(slugify("🚀 Launch Plan", "-")).toBe("launch-plan");
+});
+
 test("isExcluded: matches exact folder and subfolders, not partial names", () => {
 	const excluded = ["templates", "archive/2024"];
 	expect(isExcluded("templates/note.md", excluded)).toBe(true);

@@ -1,7 +1,7 @@
 {
-	"name": "slugify",
-	"version": "1.0.10",
-	"description": "Rename files to slug-case and automatically update links.",
+	"name": "slugify-cjk",
+	"version": "1.1.0",
+	"description": "Rename files to slug-case and update links. Keeps CJK, kana and Hangul, strips accents from Latin letters, and keeps modified dates. Fork of Slugify by ansango.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "bun esbuild.config.mjs",
