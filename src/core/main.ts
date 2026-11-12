@@ -10,6 +10,8 @@ import { DEFAULT_SETTINGS, type RenameEntry, type SlugifySettings, type UndoEntr
 export default class SlugifyPlugin extends Plugin {
 	settings: SlugifySettings;
 	private lastBatch: UndoEntry[] | null = null;
+	// True from the first rename until modified dates are restored.
+	private busy = false;
 
 	async onload() {
 		await this.loadSettings();
@@ -89,6 +91,10 @@ export default class SlugifyPlugin extends Plugin {
 	}
 
 	private runSlugify(files: TFile[], scopeLabel: string) {
+		if (this.busy) {
+			new Notice(t.noticeBusy);
+			return;
+		}
 		const renames = computeRenames(this.app.vault, files, this.settings.separator || "-");
 
 		if (renames.length === 0) {
@@ -107,6 +113,19 @@ export default class SlugifyPlugin extends Plugin {
 	}
 
 	private async applyRenames(renames: RenameEntry[]) {
+		if (this.busy) {
+			new Notice(t.noticeBusy);
+			return;
+		}
+		this.busy = true;
+		try {
+			await this.doApplyRenames(renames);
+		} finally {
+			this.busy = false;
+		}
+	}
+
+	private async doApplyRenames(renames: RenameEntry[]) {
 		let skipped = 0;
 		const succeeded: UndoEntry[] = [];
 		const snap = this.settings.preserveMtime
@@ -158,6 +177,19 @@ export default class SlugifyPlugin extends Plugin {
 	}
 
 	private async undoLastBatch() {
+		if (this.busy) {
+			new Notice(t.noticeBusy);
+			return;
+		}
+		this.busy = true;
+		try {
+			await this.doUndoLastBatch();
+		} finally {
+			this.busy = false;
+		}
+	}
+
+	private async doUndoLastBatch() {
 		const batch = this.lastBatch;
 		if (!batch || batch.length === 0) {
 			new Notice(t.noticeNothingToUndo);

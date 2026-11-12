@@ -46,4 +46,5 @@ export default {
 	settingsBumpMtimeName: "Nudge rewritten notes by 3 seconds",
 	settingsBumpMtimeDesc:
 		"Notes whose links were rewritten get their old modified date plus 3 seconds, so sync tools that compare date and size still see the edit. Turn off to restore the exact old date.",
+	noticeBusy: "Slugify CJK: still finishing the previous batch. Try again in a moment.",
 };

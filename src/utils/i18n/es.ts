@@ -46,4 +46,5 @@ export default {
 	settingsBumpMtimeName: "Adelantar 3 segundos las notas reescritas",
 	settingsBumpMtimeDesc:
 		"Las notas con enlaces reescritos reciben su fecha anterior más 3 segundos, para que las herramientas de sincronización que comparan fecha y tamaño detecten el cambio. Desactívalo para restaurar la fecha exacta.",
+	noticeBusy: "Slugify CJK: todavía terminando el lote anterior. Inténtalo de nuevo en un momento.",
 };

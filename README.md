@@ -6,7 +6,7 @@ A fork of [Slugify](https://github.com/ansango/obsidian-slugify) by ansango. It 
 
 | | Slugify | Slugify CJK |
 |---|---|---|
-| `關於低解析度視訊超分` | skipped (empty slug) | kept as is |
+| `天氣預報筆記` | skipped (empty slug) | kept as is |
 | `日本 2024 旅行` | `2024` | `日本-2024-旅行` |
 | `がぎぐ パピプ` | skipped | `がぎぐ-パピプ` (voiced marks kept) |
 | `Йошкар` | `` (skipped) | `йошкар` |
@@ -19,7 +19,7 @@ The conversion lowercases, strips accents from Latin letters only, recombines to
 
 Renaming a file keeps its modified date. Obsidian then rewrites links in the notes that point to it, which gives those notes a new date. With **Keep modified dates** on (default), the plugin records dates before a batch, waits for Obsidian to finish writing, and puts the old dates back. Undo does the same.
 
-A rewritten note often keeps the same size (`Linux migration` → `linux-migration` has the same length). Sync tools such as Syncthing and MEGA compare date and size, so putting back the exact old date could hide the edit from them, and other devices would keep stale links. **Nudge rewritten notes by 3 seconds** (default on) restores the old date plus 3 seconds instead. Renamed files that were not rewritten keep their exact date.
+A rewritten note often keeps the same size (`Weekly review` → `weekly-review` has the same length). Sync tools that decide what changed by comparing date and size (Syncthing does) could miss the edit if the exact old date came back, and other devices would keep stale links. Other tools may hash content and not need this, but check before turning it off. **Nudge rewritten notes by 3 seconds** (default on) restores the old date plus 3 seconds instead. Renamed files that were not rewritten keep their exact date.
 
 This needs filesystem access, so it only runs on desktop. On mobile the rename still works and dates are left alone.
 

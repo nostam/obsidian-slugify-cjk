@@ -56,7 +56,7 @@ test("slugify: non-alphanumeric-only name becomes empty", () => {
 });
 
 test("slugify: keeps Chinese characters", () => {
-	expect(slugify("關於低解析度視訊超分中出現的色偏", "-")).toBe("關於低解析度視訊超分中出現的色偏");
+	expect(slugify("天氣預報筆記", "-")).toBe("天氣預報筆記");
 	expect(slugify("日本 2024 旅行", "-")).toBe("日本-2024-旅行");
 });
 
@@ -77,7 +77,7 @@ test("slugify: only strips accents from Latin letters", () => {
 });
 
 test("slugify: mixed Latin and CJK", () => {
-	expect(slugify("Linux 遷移 Notes_v2", "-")).toBe("linux-遷移-notes-v2");
+	expect(slugify("Project 計畫 Notes_v2", "-")).toBe("project-計畫-notes-v2");
 });
 
 test("slugify: underscores and dots become the separator", () => {
